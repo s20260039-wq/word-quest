@@ -164,6 +164,14 @@ button{cursor:pointer}
   backdrop-filter:blur(10px);
 }
 .btn-ghost:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22)}
+.btn-endless{
+  border-color:rgba(167,139,250,.34);
+  background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(251,113,133,.09));
+  color:#f2ebff;
+}
+.btn-endless:hover{border-color:rgba(196,181,253,.6);background:linear-gradient(135deg,rgba(167,139,250,.26),rgba(251,113,133,.13))}
+.endless-ico{font-size:22px;line-height:1;color:#d8c7ff;text-shadow:0 0 16px rgba(167,139,250,.7);margin-right:-2px}
+.endless-best{font-size:9px;font-weight:700;color:#aca4cc;letter-spacing:.02em;white-space:nowrap;margin-left:2px}
 .btn .btn-ico{font-size:16px;line-height:1;display:grid;place-items:center}
 .btn svg{display:block}
 .chip svg{width:13px;height:13px;flex:none}
@@ -343,6 +351,7 @@ button{cursor:pointer}
 .battle-meta span:first-child{font-size:14px;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .battle-meta span:last-child{font-size:11px;color:var(--dim);letter-spacing:.08em}
 .diff-tag{display:inline-block;font-style:normal;font-size:9px;line-height:1;letter-spacing:.12em;font-weight:900;padding:3px 6px;border-radius:4px;margin-left:7px;vertical-align:1px;color:#ffb3c1;border:1px solid rgba(251,113,133,.42);background:rgba(251,113,133,.14)}
+.diff-tag.endless-tag{color:#e9d5ff;border-color:rgba(167,139,250,.38);background:rgba(167,139,250,.16);font-size:11px;padding:2px 7px}
 .arena{
   position:relative;height:318px;margin-top:12px;border-radius:28px;overflow:hidden;
   border:1px solid rgba(255,255,255,.08);
@@ -561,6 +570,16 @@ button{cursor:pointer}
 .stars-big span.on{color:var(--gold);text-shadow:0 0 26px rgba(255,209,102,.6);animation:starPop .55s cubic-bezier(.2,.8,.3,1.4) both}
 .stars-big span.on:nth-child(2){animation-delay:.13s}
 .stars-big span.on:nth-child(3){animation-delay:.26s}
+.result-card.endless{border-color:rgba(167,139,250,.28)}
+.result-card.endless .stars-big{height:86px;align-items:center}
+.result-card.endless .endless-medal{
+  font-size:76px;line-height:1;font-weight:900;letter-spacing:0;
+  background:linear-gradient(135deg,#fff2c4,#c4b5fd 45%,#fb7185);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 10px 28px rgba(167,139,250,.5));
+  animation:starPop .6s cubic-bezier(.2,.8,.3,1.3) both;
+}
+.result-card.endless .result-stat b{font-size:18px}
 @keyframes starPop{from{transform:scale(.2) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px}
 .result-stat{padding:11px 8px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid var(--line)}
@@ -860,6 +879,8 @@ button{cursor:pointer}
   .result-actions{flex-direction:column-reverse}
   .result-actions .btn{width:100%}
   .stars-big span{font-size:38px}
+  .result-card.endless .stars-big{height:70px}
+  .result-card.endless .endless-medal{font-size:60px}
   .book-tools{gap:8px}
   .search{min-width:0;width:100%}
   .tabs{width:100%;justify-content:flex-start}
@@ -953,6 +974,9 @@ button{cursor:pointer}
           </button>
           <button class="btn btn-ghost" id="reviewBtn">
             <span class="btn-ico"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/><path d="M9 7.5h6"/></svg></span>錯題溫習<span class="badge zero" id="reviewBadge">0</span>
+          </button>
+          <button class="btn btn-ghost btn-endless" id="endlessBtn" title="3 顆心起跑，每答對 10 題可獲 5 積分">
+            <span class="endless-ico">∞</span>無盡挑戰<span class="endless-best" id="endlessBest">新玩法</span>
           </button>
         </div>
         <div class="difficulty" id="diffBox">
@@ -1106,7 +1130,7 @@ button{cursor:pointer}
       <button type="button" class="shop-tab" data-shop-tab="decorations" role="tab" aria-selected="false">裝飾</button>
     </div>
     <div class="shop-grid" id="shopGrid"></div>
-    <p class="shop-note">角色與裝飾只影響外觀，不影響戰鬥能力。積分不會過期。</p>
+    <p class="shop-note">無盡模式每答對 10 題亦可獲 5 積分。角色與裝飾只影響外觀，積分不會過期。</p>
   </section>
 
 </main>
@@ -1374,6 +1398,13 @@ button{cursor:pointer}
   ];
   const DECORATION_MAP = {};
   DECORATIONS.forEach(function (d) { DECORATION_MAP[d.id] = d; });
+
+  const ENDLESS_MONSTERS = [
+    { kind: 'slime', name: '翠綠史萊姆', colors: ['#86efac', '#16a34a'], taunt: '無盡的挑戰，現在開始！' },
+    { kind: 'bat', name: '夜光蝙蝠', colors: ['#c4b5fd', '#6d28d9'], taunt: '反應再快一點！' },
+    { kind: 'ghost', name: '迷霧幽靈', colors: ['#a5f3fc', '#0891b2'], taunt: '你還能記住多少個字？' },
+    { kind: 'golem', name: '遠古魔像', colors: ['#fcd34d', '#b45309'], taunt: '站穩了，下一波更強！' }
+  ];
   const PARAMS = new URLSearchParams(location.search);
   const DEMO = PARAMS.get('demo');
   const DEBUG = PARAMS.get('debug') === '1';
@@ -1435,7 +1466,9 @@ button{cursor:pointer}
       characters: ['wizard'],
       decorations: ['stardust'],
       character: 'wizard',
-      decoration: 'stardust'
+      decoration: 'stardust',
+      endlessBest: 0,
+      endlessBestWave: 0
     };
   }
 
@@ -1468,7 +1501,9 @@ button{cursor:pointer}
         characters: chars,
         decorations: decos,
         character: ownedChar,
-        decoration: ownedDeco
+        decoration: ownedDeco,
+        endlessBest: Math.max(0, Math.floor(Number(d.endlessBest) || 0)),
+        endlessBestWave: Math.max(0, Math.floor(Number(d.endlessBestWave) || 0))
       };
     } catch (e) { return base; }
   }
@@ -1571,6 +1606,8 @@ button{cursor:pointer}
 
     var anywhere = totalStars() > 0 || learned > 0;
     $('#startBtnText').textContent = anywhere ? '繼續冒險' : '開始冒險';
+    var best = Number(save.endlessBest) || 0;
+    if ($('#endlessBest')) $('#endlessBest').textContent = best > 0 ? '最佳 ' + best.toLocaleString() : '新玩法';
 
     var badge = $('#reviewBadge');
     badge.textContent = save.review.length;
@@ -2152,8 +2189,211 @@ button{cursor:pointer}
     speakTimer = setTimeout(function () { if (run) nextQuestion(); }, 420);
   }
 
+  /* ============================================================
+     ENDLESS MODE
+     ============================================================ */
+  function setupEndlessMonster(wave) {
+    var boss = wave % 5 === 0;
+    var base = ENDLESS_MONSTERS[(wave - 1) % ENDLESS_MONSTERS.length];
+    var hp = 80 + (wave - 1) * 18 + (boss ? 55 : 0);
+    run.wave = wave;
+    run.stage = {
+      name: '第 ' + wave + ' 波',
+      kind: boss ? 'dragon' : base.kind,
+      monster: boss ? '無盡守衛 · 巨龍' : base.name,
+      colors: boss ? ['#fca5a5', '#b91c1c'] : base.colors,
+      taunt: boss ? '第五波了……你以為這樣就結束了嗎？' : base.taunt,
+      boss: boss
+    };
+    run.monsterMax = hp;
+    run.hp = hp;
+  }
+
+  function startEndless() {
+    stopBattleTimers();
+    closeFeedback();
+    closeResult();
+    stopSpeech();
+    run = {
+      mode: 'endless',
+      difficulty: 'normal',
+      w: -1, s: -1,
+      character: save.character,
+      decoration: save.decoration,
+      world: { name: '無盡挑戰', en: 'ENDLESS', crest: '∞', words: ALL_WORDS },
+      stage: null,
+      wave: 1,
+      index: 0,
+      hearts: 3,
+      maxHearts: 3,
+      monsterMax: 0,
+      hp: 0,
+      score: 0,
+      combo: 0,
+      bestCombo: 0,
+      correct: 0,
+      attempts: 0,
+      pointsEarned: 0,
+      wordsSeen: [],
+      lastWord: null,
+      q: null,
+      locked: true,
+      ended: false,
+      won: false,
+      result: null
+    };
+    setupEndlessMonster(1);
+    setupArena();
+    setView('battle');
+    updateBattleCount();
+    $('#scoreVal').textContent = '0';
+    $('#quiz').classList.remove('urgent');
+    $('#timerFill').style.width = '100%';
+    $('#timerNum').textContent = '18';
+    toast('無盡挑戰開始！每答對 10 題可獲 5 積分。');
+    speakTimer = setTimeout(function () { if (run) endlessNextQuestion(); }, 420);
+  }
+
+  function pickEndlessWord() {
+    var word = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+    var guard = 0;
+    while (run.lastWord && word.en === run.lastWord && guard++ < 10) {
+      word = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+    }
+    run.lastWord = word.en;
+    if (run.wordsSeen.indexOf(word.en) === -1) run.wordsSeen.push(word.en);
+    return word;
+  }
+
+  function makeEndlessQuestion(word) {
+    var qNo = run.index + 1;
+    var type;
+    if (run.wave >= 4 && qNo % 4 === 0) {
+      type = 'spell';
+    } else {
+      var r = Math.random();
+      var listenChance = HAS_SPEECH && save.sound ? 0.16 + Math.min(0.16, run.wave * 0.018) : 0;
+      if (r < listenChance) type = 'listen';
+      else if (r < listenChance + 0.34) type = 'zh2en';
+      else type = 'en2zh';
+    }
+    var choices = null;
+    if (type !== 'spell') {
+      var field = type === 'en2zh' ? 'zh' : 'en';
+      var pool = run.world.words.filter(function (w) { return w.en !== word.en && w[field] !== word[field]; });
+      choices = shuffle([word].concat(shuffle(pool).slice(0, 3)));
+    }
+    var base = type === 'spell' ? 26 : (type === 'listen' ? 16 : 18);
+    var floor = type === 'spell' ? 13 : (type === 'listen' ? 8 : 9);
+    var seconds = Math.max(floor, base - Math.min(9, run.wave - 1));
+    return { type: type, word: word, choices: choices, seconds: seconds, scored: false, endAt: 0, picked: -1 };
+  }
+
+  function endlessNextQuestion() {
+    if (!run || run.ended) return;
+    closeFeedback();
+    stopBattleTimers();
+    if (run.q) { run.index++; run.q = null; }
+    if (run.hearts <= 0) { endEndless(); return; }
+    var word = pickEndlessWord();
+    run.q = makeEndlessQuestion(word);
+    run.locked = false;
+    updateBattleCount();
+    renderQuestion(run.q);
+  }
+
+  function endlessWaveClear() {
+    if (!run || run.ended) return;
+    var cleared = run.wave;
+    var bonus = 20 + cleared * 10;
+    run.score += bonus;
+    $('#scoreVal').textContent = run.score;
+    run.wave++;
+    if (cleared % 5 === 0) {
+      if (run.maxHearts < 5) {
+        run.maxHearts++;
+        run.hearts++;
+        toast('第 ' + cleared + ' 波獎勵：最大生命提升至 ' + run.maxHearts + ' 顆心！');
+      } else if (run.hearts < run.maxHearts) {
+        run.hearts++;
+        toast('第 ' + cleared + ' 波獎勵：回復 1 顆心！');
+      }
+    }
+    setupEndlessMonster(run.wave);
+    run.locked = true;
+    setupArena();
+    showBubble($('#heroLine'), '第 ' + cleared + ' 波完成！', 1900);
+    toast('第 ' + cleared + ' 波完成 · +' + bonus + ' 分');
+    advanceTimer = setTimeout(function () { if (run) endlessNextQuestion(); }, 900);
+  }
+
+  function endEndless() {
+    if (!run || run.ended) return;
+    var thisRun = run;
+    thisRun.ended = true;
+    thisRun.won = false;
+    stopTimer();
+    if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+    if (speakTimer) { clearTimeout(speakTimer); speakTimer = null; }
+    var previous = Number(save.endlessBest) || 0;
+    var newBest = thisRun.score > previous;
+    save.endlessBest = Math.max(previous, thisRun.score);
+    save.endlessBestWave = Math.max(Number(save.endlessBestWave) || 0, thisRun.wave);
+    thisRun.result = {
+      win: false, endless: true, score: thisRun.score, wave: thisRun.wave,
+      correct: thisRun.correct, points: thisRun.pointsEarned || 0, newBest: newBest
+    };
+    persist();
+    renderTop();
+    sfxLose();
+    closeFeedback();
+    closeResult();
+    showEndlessResult();
+    if (newBest && thisRun.score > 0) setTimeout(function () { confetti(36); }, 120);
+  }
+
+  function showEndlessResult() {
+    if (!run || !run.result) return;
+    var r = run.result;
+    $('.result-card').classList.add('endless');
+    $('#resultEyebrow').textContent = 'ENDLESS CHALLENGE';
+    $('#resultTitle').textContent = r.newBest ? '新紀錄！' : '挑戰結束';
+    $('#resultSub').textContent = '你到達第 ' + r.wave + ' 波，答對 ' + r.correct + ' 題，得分 ' + r.score.toLocaleString() + '。';
+    $('#resultStars').innerHTML = '<span class="endless-medal">∞</span>';
+    $('#resultStats').innerHTML =
+      '<div class="result-stat"><b>第 ' + r.wave + ' 波</b><span>到達波數</span></div>' +
+      '<div class="result-stat"><b>' + r.correct + '/' + run.attempts + '</b><span>答對題數</span></div>' +
+      '<div class="result-stat"><b>+' + r.points + '</b><span>本局積分</span></div>';
+
+    var resultPoints = $('#resultPoints');
+    if (resultPoints) {
+      resultPoints.classList.remove('hidden');
+      resultPoints.innerHTML = r.points > 0
+        ? '<span class="rp-star">✦</span><div class="rp-copy"><b>+' + r.points + ' 積分</b><span>無盡挑戰每 10 題獎勵</span></div><button type="button" class="rp-shop" data-open-shop>前往商店</button>'
+        : '<span class="rp-star dim">✦</span><div class="rp-copy"><b>每答對 10 題</b><span>可獲 5 積分，再挑戰一次吧</span></div><button type="button" class="rp-shop" data-open-shop>前往商店</button>';
+    }
+
+    $('#resultLabel').textContent = '本局單字';
+    $('#resultWords').innerHTML = run.wordsSeen.slice(-12).map(function (en) {
+      return '<span class="word-chip">' + escapeHtml(en) + '</span>';
+    }).join('');
+
+    $('#resultActions').innerHTML =
+      '<button type="button" class="btn btn-primary" data-action="endless-retry">再挑戰一次</button>' +
+      '<button type="button" class="btn btn-soft" data-action="home">返回首頁</button>';
+
+    var best = Math.max(Number(save.endlessBest) || 0, r.score);
+    var bestWave = Math.max(Number(save.endlessBestWave) || 0, r.wave);
+    $('#resultNote').textContent = '最佳紀錄：第 ' + bestWave + ' 波 · ' + best.toLocaleString() + ' 分' + (r.newBest ? ' · 新紀錄！' : '');
+    $('#resultLayer').classList.remove('hidden');
+  }
+
   function updateBattleCount() {
     if (!run) return;
+    if (run.mode === 'endless') {
+      $('#battleCount').textContent = '第 ' + (run.index + 1) + ' 題 · 獎勵 ' + (run.correct % 10) + '/10';
+      return;
+    }
     var hard = run.difficulty === 'hard';
     $('#battleCount').textContent = (run.mode === 'review' ? '錯題溫習 · ' : '') +
       (hard ? '困難 · ' : '') + '第 ' + (run.index + 1) + ' 題';
@@ -2165,7 +2405,7 @@ button{cursor:pointer}
     var hard = run.difficulty === 'hard';
     $('#arena').classList.toggle('hard', hard);
     $('#battleStage').innerHTML = escapeHtml(run.world.name) + ' · ' + escapeHtml(stage.name) +
-      (hard ? ' <em class="diff-tag">HARD</em>' : '');
+      (hard ? ' <em class="diff-tag">HARD</em>' : (run.mode === 'endless' ? ' <em class="diff-tag endless-tag">∞</em>' : ''));
     updateBattleCount();
     $('#monsterName').textContent = stage.monster;
     $('#monsterArt').className = 'monster-wrap' + (boss ? ' boss' : '');
@@ -2267,6 +2507,7 @@ button{cursor:pointer}
 
   function nextQuestion() {
     if (!run || run.ended) return;
+    if (run.mode === 'endless') { endlessNextQuestion(); return; }
     closeFeedback();
     stopBattleTimers();
 
@@ -2472,6 +2713,14 @@ button{cursor:pointer}
     if (run.mode === 'review') removeReview(word.en);
     persist();
 
+    if (run.mode === 'endless' && run.correct % 10 === 0) {
+      save.points = (Number(save.points) || 0) + 5;
+      run.pointsEarned = (run.pointsEarned || 0) + 5;
+      persist();
+      renderTop();
+      setTimeout(function () { toast('無盡挑戰獎勵：答對 10 題，+5 積分！'); }, 300);
+    }
+
     $('#scoreVal').textContent = run.score;
     updateHp();
     updateCombo();
@@ -2495,6 +2744,16 @@ button{cursor:pointer}
     if (run.combo === 3) showBubble($('#heroLine'), '三連擊！太強了！', 1700);
     else if (run.combo === 6) showBubble($('#heroLine'), '六連擊！單字之王！', 1700);
     else if (run.combo === 9) showBubble($('#heroLine'), '無人能擋！', 1700);
+
+    if (run.mode === 'endless') {
+      if (run.hp <= 0) {
+        mon.classList.add('dying');
+        advanceTimer = setTimeout(function () { if (run) endlessWaveClear(); }, 760);
+      } else {
+        advanceTimer = setTimeout(function () { if (run) endlessNextQuestion(); }, 840);
+      }
+      return;
+    }
 
     if (run.hp <= 0) {
       mon.classList.add('dying');
@@ -2611,6 +2870,7 @@ button{cursor:pointer}
 
   function loseStage() {
     if (!run || run.ended) return;
+    if (run.mode === 'endless') { endEndless(); return; }
     var thisRun = run;
     thisRun.ended = true;
     thisRun.won = false;
@@ -2627,6 +2887,7 @@ button{cursor:pointer}
 
   function showResult(win) {
     if (!run) return;
+    $('.result-card').classList.remove('endless');
     var r = run.result || { win: win, stars: 0, xp: 0, acc: 0 };
     var isReview = run.mode === 'review';
     var boss = !!run.stage.boss;
@@ -2969,6 +3230,7 @@ button{cursor:pointer}
     else if (DEMO === 'battle') { startStage(0, 2); }
     else if (DEMO === 'boss') { startStage(2, 3); }
     else if (DEMO === 'review') { startReview(); }
+    else if (DEMO === 'endless') { startEndless(); }
     else if (DEMO === 'shop') {
       save.points = 30;
       save.characters = ['wizard', 'ranger'];
@@ -2999,6 +3261,7 @@ button{cursor:pointer}
   function bindEvents() {
     $('#startBtn').addEventListener('click', function () { sfxClick(); setView('map'); renderMap(); renderTop(); });
     $('#reviewBtn').addEventListener('click', function () { sfxClick(); startReview(); });
+    $('#endlessBtn').addEventListener('click', function () { sfxClick(); startEndless(); });
     $('#bookLink').addEventListener('click', function () { sfxClick(); openBook(); });
     $('#homeShop').addEventListener('click', function () { sfxClick(); openShop('home'); });
     $('#shopLink').addEventListener('click', function () { sfxClick(); openShop('home'); });
@@ -3010,6 +3273,7 @@ button{cursor:pointer}
     $('#brandBtn').addEventListener('click', function () { sfxClick(); goHome(); });
 
     $('#battleBack').addEventListener('click', function () {
+      if (run && run.mode === 'endless' && !run.ended) { endEndless(); return; }
       if (run && !run.ended && !demoMode) {
         if (!window.confirm('離開戰鬥？這一場的進度不會保留。')) return;
       }
@@ -3081,6 +3345,10 @@ button{cursor:pointer}
       var action = btn.dataset.action;
       sfxClick();
       closeResult();
+      if (action === 'endless-retry') {
+        startEndless();
+        return;
+      }
       if (action === 'next' && run) {
         var nx = nextStageRef(run.w, run.s);
         if (nx) startStage(nx.w, nx.s); else leaveToMap();
@@ -3186,6 +3454,8 @@ button{cursor:pointer}
       state: function () { return { run: run, save: save }; },
       startStage: startStage,
       startReview: startReview,
+      startEndless: startEndless,
+      endEndless: endEndless,
       nextQuestion: nextQuestion,
       setDifficulty: setDifficulty,
       openShop: openShop,
