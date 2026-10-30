@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://s20260039-wq.github.io/word-quest/sitemap.xml
